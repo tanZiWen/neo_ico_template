@@ -1,0 +1,6 @@
+c:\users\tanyuan\documents\visual studio 2017\Projects\NEO_ICO_Template\NEO_ICO_Template\bin\Debug\NEO_ICO_Template.dll
+c:\users\tanyuan\documents\visual studio 2017\Projects\NEO_ICO_Template\NEO_ICO_Template\bin\Debug\NEO_ICO_Template.pdb
+c:\users\tanyuan\documents\visual studio 2017\Projects\NEO_ICO_Template\NEO_ICO_Template\bin\Debug\Neo.SmartContract.Framework.dll
+c:\users\tanyuan\documents\visual studio 2017\Projects\NEO_ICO_Template\NEO_ICO_Template\obj\Debug\NEO_ICO_Template.csprojResolveAssemblyReference.cache
+c:\users\tanyuan\documents\visual studio 2017\Projects\NEO_ICO_Template\NEO_ICO_Template\obj\Debug\NEO_ICO_Template.dll
+c:\users\tanyuan\documents\visual studio 2017\Projects\NEO_ICO_Template\NEO_ICO_Template\obj\Debug\NEO_ICO_Template.pdb
