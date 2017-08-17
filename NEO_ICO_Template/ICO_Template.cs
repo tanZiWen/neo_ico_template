@@ -104,7 +104,7 @@ namespace ICO_Template
             }
             // crowdfunding success
             // 众筹成功
-            ulong token = value * swap_rate;
+            ulong token = value / 100000000 * swap_rate;
             BigInteger total_token = BytesToInt(Storage.Get(Storage.CurrentContext, sender));
             Storage.Put(Storage.CurrentContext, sender, IntToBytes(token + total_token));
             byte[] totalSupply = Storage.Get(Storage.CurrentContext, "totalSupply");
@@ -159,7 +159,7 @@ namespace ICO_Template
         {
             BigInteger ico_start_time = 1502726400;
             BigInteger ico_end_time = 1506258000;
-            BigInteger total_amount = 1000000000;
+            BigInteger total_amount = 1000000000_00000000;
             const ulong rate = 1000_00000000;
             byte[] total_supply = Storage.Get(Storage.CurrentContext, "totalSupply");
             if (BytesToInt(total_supply) > total_amount)
