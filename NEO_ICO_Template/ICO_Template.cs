@@ -9,8 +9,8 @@ namespace ICO_Template
 {
     public class ICO_Template : FunctionCode
     {
-        public const string Name = "name of the token";
-        public const string Symbol = "SymbolOfTheToken";
+        public static string Name() => "name of the token";
+        public static string Symbol() => "SymbolOfTheToken";
         public const byte Decimals = 8;
         public static readonly byte[] Owner = { 2, 133, 234, 182, 95, 74, 1, 38, 228, 184, 91, 78, 93, 139, 126, 48, 58, 255, 126, 251, 54, 13, 89, 95, 46, 49, 137, 187, 144, 72, 122, 213, 170 };
 
@@ -18,6 +18,9 @@ namespace ICO_Template
 
         [DisplayName("transfer")]
         public static event Action<byte[], byte[], BigInteger> Transferred;
+
+        [DisplayName("refund")]
+        public static event Action<byte[], byte[], BigInteger> Refund;
 
         public static Object Main(object firstArg, params object[] args)
         {
@@ -31,8 +34,8 @@ namespace ICO_Template
                 if (operation == "deploy") return Deploy();
                 if (operation == "mintTokens") return MintTokens();
                 if (operation == "totalSupply") return TotalSupply();
-                if (operation == "name") return Name;
-                if (operation == "symbol") return Symbol;
+                if (operation == "name") return Name();
+                if (operation == "symbol") return Symbol();
                 if (operation == "transfer")
                 {
                     if (args.Length != 3) return false;
@@ -48,7 +51,6 @@ namespace ICO_Template
                     return BalanceOf(account);
                 }
                 if (operation == "decimals") return Decimals;
-                if (operation == "refund") return Refund();
             }
             return false;
         }
@@ -97,10 +99,7 @@ namespace ICO_Template
             // 众筹失败
             if (swap_rate == 0)
             {
-                byte[] refund = Storage.Get(Storage.CurrentContext, "refund");
-                byte[] sender_value = IntToBytes(value);
-                byte[] new_refund = refund.Concat(sender.Concat(IntToBytes(sender_value.Length).Concat(sender_value)));
-                Storage.Put(Storage.CurrentContext, "refund", new_refund);
+                Refund(sender, receiver, value);
                 return false;
             }
             // crowdfunding success
@@ -119,13 +118,6 @@ namespace ICO_Template
         public static bool Withdrawal(byte[] signature)
         {
             return VerifySignature(Owner, signature);
-        }
-
-        // list of crowdfunding failure
-        // 众筹失败列表
-        public static byte[] Refund()
-        {
-            return Storage.Get(Storage.CurrentContext, "refund");
         }
 
         // get the total token supply
