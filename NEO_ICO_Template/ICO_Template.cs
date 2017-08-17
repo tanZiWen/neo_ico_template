@@ -26,7 +26,8 @@ namespace ICO_Template
         {
             if (Runtime.Trigger == TriggerType.Verification)
             {
-                return Withdrawal((byte[])firstArg);
+                byte[] signature = (byte[])firstArg;
+                return VerifySignature(Owner, signature);
             }
             else if (Runtime.Trigger == TriggerType.Application)
             {
@@ -61,8 +62,8 @@ namespace ICO_Template
         {
             byte[] total_supply = Storage.Get(Storage.CurrentContext, "totalSupply");
             if (total_supply.Length != 0) return false;
-            Storage.Put(Storage.CurrentContext, Owner, IntToBytes(pre_ico_cap));
-            Storage.Put(Storage.CurrentContext, "totalSupply", IntToBytes(pre_ico_cap));
+            Storage.Put(Storage.CurrentContext, Owner, pre_ico_cap);
+            Storage.Put(Storage.CurrentContext, "totalSupply", pre_ico_cap);
             return true;
         }
 
@@ -105,27 +106,18 @@ namespace ICO_Template
             // crowdfunding success
             // 众筹成功
             ulong token = value / 100000000 * swap_rate;
-            BigInteger total_token = BytesToInt(Storage.Get(Storage.CurrentContext, sender));
-            Storage.Put(Storage.CurrentContext, sender, IntToBytes(token + total_token));
-            byte[] totalSupply = Storage.Get(Storage.CurrentContext, "totalSupply");
-            Storage.Put(Storage.CurrentContext, "totalSupply", IntToBytes(token + BytesToInt(totalSupply)));
+            BigInteger total_token = Storage.Get(Storage.CurrentContext, sender).AsBigInteger();
+            Storage.Put(Storage.CurrentContext, sender, token + total_token);
+            BigInteger totalSupply = Storage.Get(Storage.CurrentContext, "totalSupply").AsBigInteger();
+            Storage.Put(Storage.CurrentContext, "totalSupply", token + totalSupply);
             return true;
-        }
-
-        // The function Withdrawal is only usable when contract owner want
-        // to transfer neo from contract
-        // 从智能合约提取neo币时，验证是否是智能合约所有者
-        public static bool Withdrawal(byte[] signature)
-        {
-            return VerifySignature(Owner, signature);
         }
 
         // get the total token supply
         // 获取已发行token总量
         public static BigInteger TotalSupply()
         {
-            byte[] totalSupply = Storage.Get(Storage.CurrentContext, "totalSupply");
-            return BytesToInt(totalSupply);
+            return Storage.Get(Storage.CurrentContext, "totalSupply").AsBigInteger();
         }
 
         // function that is always called when someone wants to transfer tokens.
@@ -134,13 +126,13 @@ namespace ICO_Template
         {
             if (!Runtime.CheckWitness(from)) return false;
             if (value < 0) return false;
-            byte[] from_value = Storage.Get(Storage.CurrentContext, from);
-            byte[] to_value = Storage.Get(Storage.CurrentContext, to);
-            BigInteger n_from_value = BytesToInt(from_value) - value;
+            BigInteger from_value = Storage.Get(Storage.CurrentContext, from).AsBigInteger();
+            BigInteger to_value = Storage.Get(Storage.CurrentContext, to).AsBigInteger();
+            BigInteger n_from_value = from_value - value;
             if (n_from_value < 0) return false;
-            BigInteger n_to_value = BytesToInt(to_value) + value;
-            Storage.Put(Storage.CurrentContext, from, IntToBytes(n_from_value));
-            Storage.Put(Storage.CurrentContext, to, IntToBytes(n_to_value));
+            BigInteger n_to_value = to_value + value;
+            Storage.Put(Storage.CurrentContext, from, n_from_value);
+            Storage.Put(Storage.CurrentContext, to, n_to_value);
             Transferred(from, to, value);
             return true;
         }
@@ -149,8 +141,7 @@ namespace ICO_Template
         // 根据地址获取token的余额
         public static BigInteger BalanceOf(byte[] address)
         {
-            byte[] balance = Storage.Get(Storage.CurrentContext, address);
-            return BytesToInt(balance);
+            return Storage.Get(Storage.CurrentContext, address).AsBigInteger();
         }
 
         // The function CurrentSwapRate() returns the current exchange rate
@@ -161,8 +152,8 @@ namespace ICO_Template
             BigInteger ico_end_time = 1506258000;
             BigInteger total_amount = 1000000000_00000000;
             const ulong rate = 1000_00000000;
-            byte[] total_supply = Storage.Get(Storage.CurrentContext, "totalSupply");
-            if (BytesToInt(total_supply) > total_amount)
+            BigInteger total_supply = Storage.Get(Storage.CurrentContext, "totalSupply").AsBigInteger();
+            if (total_supply > total_amount)
             {
                 return 0;
             }
@@ -193,16 +184,6 @@ namespace ICO_Template
             {
                 return 0;
             }
-        }
-
-        private static BigInteger BytesToInt(byte[] array)
-        {
-            return new BigInteger(array);
-        }
-
-        private static byte[] IntToBytes(BigInteger value)
-        {
-            return value.ToByteArray();
         }
     }
 }
