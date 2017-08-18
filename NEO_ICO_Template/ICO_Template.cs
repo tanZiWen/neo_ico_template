@@ -119,8 +119,8 @@ namespace ICO_Template
             // crowdfunding success
             // 众筹成功
             ulong token = value / 100000000 * swap_rate;
-            BigInteger total_token = Storage.Get(Storage.CurrentContext, sender).AsBigInteger();
-            Storage.Put(Storage.CurrentContext, sender, token + total_token);
+            BigInteger balance = Storage.Get(Storage.CurrentContext, sender).AsBigInteger();
+            Storage.Put(Storage.CurrentContext, sender, token + balance);
             BigInteger totalSupply = Storage.Get(Storage.CurrentContext, "totalSupply").AsBigInteger();
             Storage.Put(Storage.CurrentContext, "totalSupply", token + totalSupply);
             return true;
@@ -137,15 +137,16 @@ namespace ICO_Template
         // 流转token调用
         public static bool Transfer(byte[] from, byte[] to, BigInteger value)
         {
+            if (value <= 0) return false;
             if (!Runtime.CheckWitness(from)) return false;
-            if (value < 0) return false;
             BigInteger from_value = Storage.Get(Storage.CurrentContext, from).AsBigInteger();
+            if (from_value < value) return false;
+            if (from_value == value)
+                Storage.Delete(Storage.CurrentContext, from);
+            else
+                Storage.Put(Storage.CurrentContext, from, from_value - value);
             BigInteger to_value = Storage.Get(Storage.CurrentContext, to).AsBigInteger();
-            BigInteger n_from_value = from_value - value;
-            if (n_from_value < 0) return false;
-            BigInteger n_to_value = to_value + value;
-            Storage.Put(Storage.CurrentContext, from, n_from_value);
-            Storage.Put(Storage.CurrentContext, to, n_to_value);
+            Storage.Put(Storage.CurrentContext, to, to_value + value);
             Transferred(from, to, value);
             return true;
         }
