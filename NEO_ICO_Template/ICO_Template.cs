@@ -9,12 +9,20 @@ namespace ICO_Template
 {
     public class ICO_Template : FunctionCode
     {
+        //Token Settings
         public static string Name() => "name of the token";
         public static string Symbol() => "SymbolOfTheToken";
-        public static byte Decimals() => 8;
         public static readonly byte[] Owner = { 2, 133, 234, 182, 95, 74, 1, 38, 228, 184, 91, 78, 93, 139, 126, 48, 58, 255, 126, 251, 54, 13, 89, 95, 46, 49, 137, 187, 144, 72, 122, 213, 170 };
+        public static byte Decimals() => 8;
+        private const ulong factor = 100000000; //decided by Decimals()
 
-        private const ulong pre_ico_cap = 30000000_00000000;
+        //ICO Settings
+        private static readonly byte[] neo_asset_id = { 197, 111, 51, 252, 110, 207, 205, 12, 34, 92, 74, 179, 86, 254, 229, 147, 144, 175, 133, 96, 190, 14, 147, 15, 174, 190, 116, 166, 218, 255, 124, 155 };
+        private const ulong total_amount = 1000000000 * factor;
+        private const ulong pre_ico_cap = 30000000 * factor;
+        private const ulong basic_rate = 1000 * factor;
+        private const int ico_start_time = 1502726400;
+        private const int ico_end_time = 1503936000;
 
         [DisplayName("transfer")]
         public static event Action<byte[], byte[], BigInteger> Transferred;
@@ -80,7 +88,6 @@ namespace ICO_Template
         // 将众筹的neo转化为等价的ico代币
         public static bool MintTokens()
         {
-            byte[] neo_asset_id = new byte[] { 197, 111, 51, 252, 110, 207, 205, 12, 34, 92, 74, 179, 86, 254, 229, 147, 144, 175, 133, 96, 190, 14, 147, 15, 174, 190, 116, 166, 218, 255, 124, 155 };
             Transaction tx = (Transaction)ExecutionEngine.ScriptContainer;
             TransactionOutput reference = tx.GetReferences()[0];
             // check whether asset is neo
@@ -154,37 +161,30 @@ namespace ICO_Template
         // between ico tokens and neo during the token swap period
         private static ulong CurrentSwapRate()
         {
-            BigInteger ico_start_time = 1502726400;
-            BigInteger ico_end_time = 1506258000;
-            BigInteger total_amount = 1000000000_00000000;
-            const ulong rate = 1000_00000000;
+            const int ico_duration = ico_end_time - ico_start_time;
             BigInteger total_supply = Storage.Get(Storage.CurrentContext, "totalSupply").AsBigInteger();
-            if (total_supply > total_amount)
-            {
-                return 0;
-            }
-            uint height = Blockchain.GetHeight();
-            uint now = Blockchain.GetHeader(height).Timestamp;
-            int time = (int)now - (int)ico_start_time;
+            if (total_supply >= total_amount) return 0;
+            uint now = Blockchain.GetHeader(Blockchain.GetHeight()).Timestamp;
+            int time = (int)now - ico_start_time;
             if (time < 0)
             {
                 return 0;
             }
-            else if (time <= 86400)
+            else if (time < 86400)
             {
-                return rate * 130 / 100;
+                return basic_rate * 130 / 100;
             }
-            else if (time <= 259200)
+            else if (time < 259200)
             {
-                return rate * 120 / 100;
+                return basic_rate * 120 / 100;
             }
-            else if (time <= 604800)
+            else if (time < 604800)
             {
-                return rate * 110 / 100;
+                return basic_rate * 110 / 100;
             }
-            else if (time <= 1209600)
+            else if (time < ico_duration)
             {
-                return rate;
+                return basic_rate;
             }
             else
             {
