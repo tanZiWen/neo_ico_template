@@ -22,16 +22,22 @@ namespace ICO_Template
         [DisplayName("refund")]
         public static event Action<byte[], byte[], BigInteger> Refund;
 
-        public static Object Main(object firstArg, params object[] args)
+        public static Object Main(string operation, params object[] args)
         {
             if (Runtime.Trigger == TriggerType.Verification)
             {
-                byte[] signature = (byte[])firstArg;
-                return VerifySignature(Owner, signature);
+                if (Owner.Length == 20)
+                {
+                    return Runtime.CheckWitness(Owner);
+                }
+                else if (Owner.Length == 33)
+                {
+                    byte[] signature = operation.AsByteArray();
+                    return VerifySignature(Owner, signature);
+                }
             }
             else if (Runtime.Trigger == TriggerType.Application)
             {
-                string operation = (string)firstArg;
                 if (operation == "deploy") return Deploy();
                 if (operation == "mintTokens") return MintTokens();
                 if (operation == "totalSupply") return TotalSupply();
