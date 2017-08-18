@@ -28,7 +28,7 @@ namespace ICO_Template
         public static event Action<byte[], byte[], BigInteger> Transferred;
 
         [DisplayName("refund")]
-        public static event Action<byte[], byte[], BigInteger> Refund;
+        public static event Action<byte[], BigInteger> Refund;
 
         public static Object Main(string operation, params object[] args)
         {
@@ -113,7 +113,7 @@ namespace ICO_Template
             // 众筹失败
             if (swap_rate == 0)
             {
-                Refund(sender, receiver, value);
+                Refund(sender, value);
                 return false;
             }
             // crowdfunding success
