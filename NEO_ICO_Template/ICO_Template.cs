@@ -11,7 +11,7 @@ namespace ICO_Template
     {
         public static string Name() => "name of the token";
         public static string Symbol() => "SymbolOfTheToken";
-        public const byte Decimals() => 8;
+        public static byte Decimals() => 8;
         public static readonly byte[] Owner = { 2, 133, 234, 182, 95, 74, 1, 38, 228, 184, 91, 78, 93, 139, 126, 48, 58, 255, 126, 251, 54, 13, 89, 95, 46, 49, 137, 187, 144, 72, 122, 213, 170 };
 
         private const ulong pre_ico_cap = 30000000_00000000;
