@@ -22,8 +22,8 @@ namespace ICO_Template
         private const ulong total_amount = 100000000 * factor; // total token amount
         private const ulong pre_ico_cap = 30000000 * factor; // pre ico token amount
         private const ulong basic_rate = 1000 * factor;
-        private const int ico_start_time = 1507824000;
-        private const int ico_end_time = 1507910400;
+        private const int ico_start_time = 1506787200;
+        private const int ico_end_time = 1538323200;
 
         [DisplayName("transfer")]
         public static event Action<byte[], byte[], BigInteger> Transferred;
@@ -231,7 +231,7 @@ namespace ICO_Template
             // 获取转入智能合约地址的Neo总量
             foreach (TransactionOutput output in outputs)
             {
-                if (output.ScriptHash == GetReceiver())
+                if (output.ScriptHash == GetReceiver() && output.AssetId == neo_asset_id)
                 {
                     value += (ulong)output.Value;
                 }
