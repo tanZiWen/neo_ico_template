@@ -37,12 +37,14 @@ namespace ICO_Template
             {
                 if (Owner.Length == 20)
                 {
+                    // if const param Owner is script hash
                     return Runtime.CheckWitness(Owner);
                 }
                 else if (Owner.Length == 33)
                 {
+                    // if const param Owner is public key
                     byte[] signature = operation.AsByteArray();
-                    return VerifySignature(Owner, signature);
+                    return VerifySignature(signature, Owner);
                 }
             }
             else if (Runtime.Trigger == TriggerType.Application)
