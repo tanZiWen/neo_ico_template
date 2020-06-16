@@ -251,7 +251,7 @@ paket-files/
 .fake/
 
 # JetBrains Rider
-.idea/
+.idea/xxx
 *.sln.iml
 
 PublishProfiles
